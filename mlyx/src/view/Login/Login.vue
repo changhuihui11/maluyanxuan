@@ -29,7 +29,7 @@
                     </van-field>
                 </div>
                 <div style="margin: 16px;">
-                    <van-button round block type="primary" native-type="submit">
+                    <van-button round block type="primary" native-type="submit" @click="onSubmit">
                         提交
                     </van-button>
                 </div>
@@ -43,13 +43,20 @@
 <script setup>
 import vueImgVerify from "../../components/vueImgVerify.vue"
 import { ref, reactive, toRefs } from "vue"
-import { Toast } from "vant"
+import { register, login } from '@/api/index.js'
+import { Toast, showNotify } from "vant"
+import { useRouter, useRoute } from 'vue-router'
+let route = useRoute()
+let router = useRouter()
 let verifyRef = ref(null)
 let state = reactive({
     verify: ''
 })
-let username = ref('17001100999')
-let password = ref('password')
+let userInfo = reactive({
+    username: '17001100999',
+    password: '123456',
+    isLogin: true
+})
 let btn = () => {
     if (verifyRef.value.imgCode == satisfies.verify) {
         Toast.success('验证码输入正确')
@@ -58,10 +65,34 @@ let btn = () => {
     }
 
 }
-let isLogin = ref(false)
-let onClickLeft = () => {
-
+// 点击提交
+let onSubmit = () => {
+    if (userInfo.isLogin) {
+        // 表示登录
+        login(userInfo.username, userInfo.password).then(data => {
+            if (data.resultCode == 200) {
+                localStorage.setItem('token', data.data)
+                router.replace('/home')
+                showNotify({
+                    type: 'success',
+                    message: '登陆成功'
+                })
+            }
+        })
+    } else {
+        // 表示注册
+        register(userInfo.username, userInfo.password).then(data => {
+            if (data.resultCode == 200) {
+                showNotify({
+                    type: 'success',
+                    message: '注册成功'
+                })
+                userInfo.isLogin = true
+            }
+        })
+    }
 }
+let { username, password, isLogin } = toRefs(userInfo)
 </script>
 <style scoped>
 .footer {

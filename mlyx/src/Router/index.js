@@ -36,7 +36,7 @@ const ansyRouter = [
         path: '/login',
         component: () => import('../view/Login/Login.vue'),
         meta: {
-            isShowNav: true,
+            isShowNav: false,
         }
     }
 ]
